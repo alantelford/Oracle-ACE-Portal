@@ -187,16 +187,20 @@ fi
 
  
  # trim off the drive name from the path to match the zip file
- FILE_PATH=$(echo "${SOURCE_BRANCH_BUILD}/${FILE}" | cut -c4-) 
+ FILE_PATH=$(echo "${FILE}" ) 
  
  # write file details to manifest file TARGET/SOURCE_BRANCH/manifest.csv
  echo "${FILE_PATH},${MODULE},,$EXTENSION,,US" >> $SOURCE_BRANCH_ARCHIVE/manifest.txt
 
 done
+RUN_DIRECTORY=$(pwd)
 
+cd "${SOURCE_BRANCH_BUILD}"
+echo "moved to ${SOURCE_BRANCH_BUILD}"
 #zip the directory and copy it to archive
-zip -r ${SOURCE_BRANCH_ARCHIVE}/${DATE_TIME}.zip ${SOURCE_BRANCH_BUILD}/*
+zip -r ${SOURCE_BRANCH_ARCHIVE}/${DATE_TIME}.zip *
 
+cd "$RUN_DIRECTORY"
 exit 0
 
 
