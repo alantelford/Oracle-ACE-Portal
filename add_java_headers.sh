@@ -11,6 +11,11 @@
 CURRENT_DATE=$(date +"%Y/%m/%d %T")
 shopt -o nounset
 
+show_header() {
+grep 
+
+}
+
 make_directory() {
 
 echo "make_directory called with $1"
@@ -58,6 +63,14 @@ do
 		  echo "copied class file $FILE"
 		  cp "$1/${FILE}"  "${GIT_JAVA_TOP}${FILE}"
 		  ;;
+	  xml)
+	     if [-f "${GIT_JAVA_TOP}${FILE}" ]
+		 
+	     echo "removed old version of file $FILE"
+		 touch "${GIT_JAVA_TOP}${FILE}"
+		 echo "<-- $Header: $(basename $FILE 1.0 2017/11/09 15:58:25 atelford sh $ 
+		 
+		 ;;
 	  esac
 		
 	fi

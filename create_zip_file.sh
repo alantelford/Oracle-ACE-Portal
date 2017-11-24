@@ -1,4 +1,5 @@
-# Script should always be executed from a bash shell e.g. Source Tree Terminal
+#/* $Header: create_zip_file.sh 1.0 17/11/24 09:00:00 atelford sh$ */
+# Script should always be executed from a git bash shell e.g. Source Tree Terminal
 #########################################################################
 #  file name create_zip_file.sh
 #  Author Alan Telford
@@ -144,7 +145,8 @@ else
   echo "Creating files in ${SOURCE_BRANCH_DIR}"
 fi
 # remove any directories under $SOURCE_BRANCH_BUILD
-rm -f "$SOURCE_BRANCH_BUILD"/*
+rm -rf "$SOURCE_BRANCH_BUILD"
+
 
 make_directory $SOURCE_BRANCH_BUILD
 make_directory $SOURCE_BRANCH_ARCHIVE
@@ -163,7 +165,6 @@ for FILE in $(git diff --name-only $LAST_COMMON_COMMIT..$SOURCE_BRANCH)
 do
  
  make_directory "$SOURCE_BRANCH_BUILD"/$(dirname $FILE)
- cp $FILE "$SOURCE_BRANCH_BUILD"/$(dirname $FILE)
  EXTENSION=${FILE#*.}     # Right of .
  echo "File extension is  $EXTENSION"
  case $EXTENSION in
@@ -174,6 +175,9 @@ do
 	  pks)
 	     EXTENSION=c_pks
 		 ;;
+          prog)
+             EXTENSION=shell
+             ;;
  esac
  
  #check if the CEMLI_FILE_TYPE is set in the file
@@ -186,11 +190,30 @@ then
 fi
 
  
- # trim off the drive name from the path to match the zip file
- FILE_PATH=$(echo "${FILE}" ) 
- 
+echo "checking file name is correct in the header"
+ #check the file name is present in the header
+ ## not fmd or rdf or class
+if [ $EXTENSION != "fmb" ] && [ $EXTENSION != 'rdf' ] &&  [ $EXTENSION != 'class' ]
+then
+
+   if  grep Header $FILE | grep -q $(basename $FILE)
+   then
+      echo "checked file in header ok"
+   else
+      echo "Please check header on $FILE"
+      exit 101
+   fi
+fi 
  # write file details to manifest file TARGET/SOURCE_BRANCH/manifest.csv
- echo "${FILE_PATH},${MODULE},,$EXTENSION,,US" >> $SOURCE_BRANCH_ARCHIVE/manifest.txt
+ if [ "$EXTENSION" = "nopatch" ]
+ then
+    echo "$FILE skipped from patch"
+ else
+   echo "copying $FILE"
+   echo "${FILE},${MODULE},,$EXTENSION,,US" >> $SOURCE_BRANCH_ARCHIVE/manifest.txt
+   cp $FILE "$SOURCE_BRANCH_BUILD"/$(dirname $FILE)
+  fi
+
 
 done
 RUN_DIRECTORY=$(pwd)
