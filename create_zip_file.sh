@@ -114,6 +114,14 @@ if [ -n "$ORIGIN_DIFF" ]
 then
   echo "Please push you changes to origin before proceeding"
 fi
+
+#get any tags
+TAG=$(git describe --all)
+if [ -z $COMMENT]
+then
+  COMMENT="$TAG"
+  echo "setting COMMENT to $TAG"
+fi
   
 
 #get the common commit point between SOURCE_BRANCH and REFERENCE_BRANCH
@@ -210,7 +218,7 @@ fi
     echo "$FILE skipped from patch"
  else
    echo "copying $FILE"
-   echo "${FILE},${MODULE},,$EXTENSION,,US" >> $SOURCE_BRANCH_ARCHIVE/manifest.txt
+   echo "${FILE},${MODULE},$COMMENT,$EXTENSION,,US" >> $SOURCE_BRANCH_ARCHIVE/manifest.txt
    cp $FILE "$SOURCE_BRANCH_BUILD"/$(dirname $FILE)
   fi
 
