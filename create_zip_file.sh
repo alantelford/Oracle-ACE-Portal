@@ -11,7 +11,13 @@
 # Parameters
 # 1 The branch to create the file from
 #########################################################################
-##
+## DISCLAIMER
+#THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+#INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+#WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
+#CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#########################################################################
 #function to make directory
 make_directory() {
 
@@ -34,15 +40,20 @@ return 0
 
 
 #set main variables 
-# TARGET is directory the files will be created in
-TARGET_DIR="/c/git_output"
 SOURCE_BRANCH=$1  #Branch to take code from
 COMMENT=$2
+#the following environments will need to be set for your environment
+#REPO_HOME where your EBS code resides
+REPO_HOME="/c/R12 Code Mainline"
+# SCRIPT_HOME where this script is stored
+SCRIPT_HOME=/c/git_scripts/
+# TARGET is directory the files will be created in
+TARGET_DIR="/c/git_output"
+
+## the following VARIABLES can optionally be changed
 REFERENCE_BRANCH=develop # branch to compare to
 MANIFEST_FILE=manifest.csv
 MODULE=xbol
-REPO_HOME="/c/R12 Code Mainline"
-SCRIPT_HOME=/c/git_scripts/
 # name for achive directory
 ARCHIVE=archive
 BUILD=build
