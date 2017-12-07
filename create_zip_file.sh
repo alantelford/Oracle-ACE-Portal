@@ -141,7 +141,7 @@ LAST_COMMON_COMMIT=$(git merge-base origin/$REFERENCE_BRANCH origin/$SOURCE_BRAN
 echo "Found last common commit point to $REFERENCE_BRANCH is $LAST_COMMON_COMMIT"
 
 
-git diff --name-status $LAST_COMMON_COMMIT..$SOURCE_BRANCH
+#git diff --name-status $LAST_COMMON_COMMIT..$SOURCE_BRANCH
 
 #check if  TARGET directory exists if not error with exit code 100
 # remove any spaces from the SOURCE_BRANCH  should not really happen with source tree
@@ -179,8 +179,10 @@ make_directory $SOURCE_BRANCH_ARCHIVE
 #clear down manifest file
 rm $SOURCE_BRANCH_ARCHIVE/manifest.txt
 
+git diff --name-only $LAST_COMMON_COMMIT..$SOURCE_BRANCH > $SOURCE_BRANCH_BUILD\filechanges.txt
+
 # iterate through files
-for FILE in $(git diff --name-only $LAST_COMMON_COMMIT..$SOURCE_BRANCH)
+for FILE in $(cat $SOURCE_BRANCH_BUILD\filechanges.txt )
 do
  
  make_directory "$SOURCE_BRANCH_BUILD"/$(dirname $FILE)
@@ -200,7 +202,10 @@ do
  esac
  
  #check if the CEMLI_FILE_TYPE is set in the file
-CEMLI_EXTENSION=$(sed -n 's/^.*CEMLI_FILE_TYPE=//p' $FILE)
+ if [ -f $FILE ]
+ then
+   CEMLI_EXTENSION=$(sed -n 's/^.*CEMLI_FILE_TYPE=//p' $FILE)
+ fi
 
 if [ ! -z $CEMLI_EXTENSION ]
 then
@@ -208,31 +213,31 @@ then
   EXTENSION=$CEMLI_EXTENSION
 fi
 
+## only do this if the file exists (may have been deleted)ls
  
-echo "checking file name is correct in the header"
- #check the file name is present in the header
- ## not fmd or rdf or class
-if [ $EXTENSION != "fmb" ] && [ $EXTENSION != 'rdf' ] &&  [ $EXTENSION != 'class' ]
-then
+  echo "checking file name is correct in the header"
+   #check the file name is present in the header
+   ## not fmd or rdf or class
+  if [ $EXTENSION != "fmb" ] && [ $EXTENSION != 'rdf' ]&& [ $EXTENSION != 'rtf' ] &&  [ $EXTENSION != 'class' ] && [ -f $FILE ]
+  then
 
-   if  grep Header $FILE | grep -q $(basename $FILE)
+     if  grep Header $FILE | grep -q $(basename $FILE)
+     then
+        echo "checked file in header ok"
+     else
+        echo "Please check header on $FILE"
+        exit 101
+     fi
+  fi 
+   # write file details to manifest file TARGET/SOURCE_BRANCH/manifest.csv
+   if [ "$EXTENSION" = "nopatch" ] |  [ ! -f $FILE ]
    then
-      echo "checked file in header ok"
+      echo "$FILE skipped from patch"
    else
-      echo "Please check header on $FILE"
-      exit 101
-   fi
-fi 
- # write file details to manifest file TARGET/SOURCE_BRANCH/manifest.csv
- if [ "$EXTENSION" = "nopatch" ]
- then
-    echo "$FILE skipped from patch"
- else
-   echo "copying $FILE"
-   echo "${FILE},${MODULE},$COMMENT,$EXTENSION,,US" >> $SOURCE_BRANCH_ARCHIVE/manifest.txt
-   cp $FILE "$SOURCE_BRANCH_BUILD"/$(dirname $FILE)
-  fi
-
+     echo "copying $FILE"
+     echo "${FILE},${MODULE},$COMMENT,$EXTENSION,,US" >> $SOURCE_BRANCH_ARCHIVE/manifest.txt
+     cp $FILE "$SOURCE_BRANCH_BUILD"/$(dirname $FILE)
+    fi
 
 done
 RUN_DIRECTORY=$(pwd)
